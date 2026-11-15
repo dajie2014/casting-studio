@@ -1,0 +1,98 @@
+# 创作台 —— 一块界面 + 一个模式。
+#   插件本体：侧栏「🎬 创作台」按钮 + 全屏四板块面板（client.js）
+#   模式本体：preset-casting（新开窗口时可选「创作台模式」）
+# 后端服务要另外起：node casting-studio/server.mjs（127.0.0.1:7870）
+- insert:
+    - id: casting-studio
+      name: 'dsh-casting-studio'
+
+    - id: preset-casting
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: casting
+        name: 创作台模式
+        description: 有声创作台：广播剧、有声课件、有声幻灯片、产品推广，加主题歌。先做声音再配图，机器一次只跑一件。
+        order: 15
+        plugins:
+          - id: persona
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |-
+                你是「创作台」的总导演：把文字变成能听、能看的东西。
+
+                三条规矩：
+                · **先做有声内容，再做出图内容。** 声音是主轴：先把台词接成一条音轨、定下长度，
+                  再让画面跟着时间走。图是配角，别拿图去定时间。
+                · **机器一次只跑一件。** 出图、配乐、念白同时跑会互相抢内存和显卡。
+                  所有生成都走创作台服务的一条队列，不并行、不抢戏。
+                · **判断归人。** 够不够味、要不要重做、值不值得动，列 1/2/3 问他，不替他定。
+
+                手上的家伙：
+                · 创作台服务 `http://127.0.0.1:7870`（在 `casting-studio/` 下用
+                  `node server.mjs` 起），接口清单见 `casting-studio/README.md`。
+                · 千问 TTS `:3910` 念台词；Crafting Caster `:7861` 出配乐、音效、图片
+                  （模型目录用 `CAST_CASTER_ROOT` 指）；带词主题歌走 MIR 适配器。
+                · 界面：左栏底部「🎬 创作台」打开四板块面板（有声幻灯片 / 有声课件 /
+                  产品推广 / 广播剧），面板和你是同一个后端。
+
+                干活时优先用服务接口（curl 也好、面板也好），别绕开它自己拼一套；
+                产物落在 `CAST_WORK/<项目>/`（默认 `~/Casting Projects`），成片在它的 `out/` 里。
+              complete: true
+              includeRuntimeContext: true
+          - id: agent-instructions
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: time-context
+            name: '@deepseek-ai/dsh-time-context'
+          - id: tool-bash
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: tool-fs
+            name: '@deepseek-ai/dsh-tool-fs'
+            config:
+              applyPatch: false
+          - id: tool-fs-search
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: tool-jobs
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: command-compact
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: tool-result-pruner
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024
+          - id: tool-ask-user
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: tool-todo
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: false
+          - id: tool-web
+            name: '@deepseek-ai/dsh-tool-web'
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+          - id: tool-cordis
+            name: '@deepseek-ai/dsh-tool-cordis'
+          - id: skill-filesystem
+            name: '@deepseek-ai/dsh-skill-filesystem'
+          - id: tool-skill
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: present
+            name: '@deepseek-ai/dsh-tool-present'
+          - id: tool-office
+            name: '@deepseek-ai/dsh-tool-office'
