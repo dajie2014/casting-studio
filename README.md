@@ -149,6 +149,19 @@ open http://127.0.0.1:7870/preview-live.html
 
 ---
 
+## 用到的模型从哪来，能不能换
+
+这个仓库**不带任何模型**。作者本机用的那一套 —— YuE2 / HeartMuLa / Stable Audio /
+SDXL / SheetSage2 / Demucs / Seed-VC / 任意 TTS —— 它们的**出处、许可、以及每条怎么换成
+你自己的**，全写在 [`docs/MODELS.md`](docs/MODELS.md)。
+
+一句话：**能换是设计的一部分，不是妥协。** 只要对上接口契约（`/tts`、`/api/draw`、
+适配器脚本、VoiceCaster 那几道 HTTP），你手上有什么就用什么。
+
+> ⚠️ 代码是 MIT，**模型不是**。商用前按各自许可确认 —— 其中 SheetSage2 是 CC BY-NC（非商业）。
+
+---
+
 ## 已知限制
 
 - 面板需要 **DSH**；离开 DSH 只有 HTTP 接口和预览页。
