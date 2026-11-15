@@ -194,8 +194,8 @@ audio::-webkit-media-controls-panel{background:rgba(255,255,255,.02)}
     // 用户 2026-11-15：「现在有的是 yue2，stable audio 和 heartmula」——
     // Stable Audio 就是快档那个按钮（Caster 的模型），不在这个下拉里。
     const SONG_ENGINES = [
-      { id: 'yue2', label: 'YuE2 · 带词唱（成品，还出谱）', hint: '先写谱、再照谱唱；插着电源才跑' },
-      { id: 'heartmula', label: 'HeartMuLa · 人声草稿（干净，伴奏弱）', hint: '风格要写英文标签：pop,female vocal,piano,90 bpm' },
+      { id: 'yue2', label: 'YuE2 · 带词唱（成品，唯一出谱的）', hint: '先写谱、再照谱唱；谱子只从这条线来' },
+      { id: 'heartmula', label: 'HeartMuLa · 人声草稿（不出谱）', hint: '风格要写英文标签：pop,female vocal,piano,90 bpm' },
     ];
 
     function StudioPanel() {
