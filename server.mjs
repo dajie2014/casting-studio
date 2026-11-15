@@ -1418,13 +1418,13 @@ function songEngineStatus() {
   return [
     {
       id: 'yue2',
-      name: 'YuE2 · 带词唱（成品，还出谱）',
+      name: 'YuE2 · 带词唱（成品，唯一出谱的）',
       ready: has(path.join(MIR_ROOT, 'yue2_adapter.sh')) && has(root('yue2-local')),
       why: '适配器或 yue2 引擎不在',
     },
     {
       id: 'heartmula',
-      name: 'HeartMuLa · 人声草稿（干净，伴奏弱）',
+      name: 'HeartMuLa · 人声草稿（不出谱）',
       ready: has(path.join(MIR_ROOT, 'heartmula_adapter.sh'))
         && has(root('audio.cpp/models/HeartMuLa-GGUF'))
         && has(root('audiocpp-bin/audiocpp_cli')),
