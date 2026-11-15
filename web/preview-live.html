@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>创作台 · 真界面预览</title>
+<!--
+  开发期用的「真界面预览」。
+
+  为什么不直接把面板画成一张静态图：静态图不会报错，也不会告诉你按钮点不动。
+  这一页干的是 —— 把**真的** client.js 拿过来，用真的 React 渲染一遍，
+  接的是真的后端（127.0.0.1:7870），所以看到的就是 DSH 里那个面板。
+
+  用途：改完界面自己看一眼，不用去 DSH 里刷新。
+  注意：React 从 esm.sh 取（要联网）；DSH 里那份是它自带的，跟这里无关。
+-->
+<style>
+  html, body { margin: 0; height: 100%; background: #14111c; }
+  body { font-family: -apple-system, "PingFang SC", system-ui, sans-serif; }
+  #root { position: fixed; inset: 0; }
+  #hint { position: fixed; left: 12px; bottom: 10px; color: #8b84a0; font-size: 12px; z-index: 1;
+    background: rgba(0,0,0,.45); padding: 4px 8px; border-radius: 6px; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1"
+  }
+}
+</script>
+</head>
+<body>
+<div id="root"></div>
+<div id="hint"></div>
+<script type="module">
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+
+const hint = (t) => { document.getElementById('hint').textContent = t; };
+
+try {
+  // ?api=http://127.0.0.1:7871 —— 用另一份实例（比如用来试新代码的那份）
+  const apiBase = new URLSearchParams(location.search).get('api');
+  if (apiBase) window.__CAST_API = apiBase;
+  const code = await (await fetch('/dev/client.js')).text();
+
+  // DSH 的模块加载器：插件文件调用 window.__ModuleLoader__.load({factory})，
+  // factory 里再 require('react')。这里给它一个最小的同名壳。
+  let mod = null;
+  window.__ModuleLoader__ = {
+    load({ id, factory }) {
+      mod = factory((name) => (name === 'react' ? React : undefined));
+    },
+  };
+  (0, eval)(code);            // 执行插件源码（它自己会调 __ModuleLoader__.load）
+  if (!mod) throw new Error('插件没有注册（__ModuleLoader__ 没被调用）');
+
+  // DSH 的槽位系统：插件 apply() 里 inject + register 两个槽
+  const slots = {
+    got: {},
+    inject(name, fn) { fn(); },
+    register(def, Comp) { this.got[def.name] = Comp; },
+  };
+  mod.apply({ slots });
+
+  const OpenButton = slots.got['sidebar.footer.action'];
+  const Panel = slots.got['shell.overlay'];
+  if (!Panel) throw new Error('没有拿到面板组件（shell.overlay 槽没注册）');
+
+  const root = createRoot(document.getElementById('root'));
+  root.render(React.createElement(React.Fragment, null,
+    OpenButton ? React.createElement(OpenButton, { wide: true }) : null,
+    React.createElement(Panel, null)));
+
+  // 面板默认是收起的（和 DSH 里一样），替用户点一下入口
+  setTimeout(() => {
+    const btn = document.querySelector('.cs-entry');
+    if (btn) { btn.click(); hint('已点开面板（真代码 · 真后端）'); }
+    else hint('没找到入口按钮');
+  }, 500);
+} catch (e) {
+  hint('预览失败：' + e.message);
+  const pre = document.createElement('pre');
+  pre.style.cssText = 'color:#ff8fa3;padding:20px;white-space:pre-wrap;font-size:13px';
+  pre.textContent = String(e && e.stack || e);
+  document.body.appendChild(pre);
+}
+</script>
+</body>
+</html>
