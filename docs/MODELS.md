@@ -21,6 +21,11 @@
 | **ACE-Step 1.5** | 纯器乐（作者后来拆掉了，省硬盘；代码里已不再列它） | [ace-step/ace-step-1.5](https://github.com/ace-step/ace-step-1.5) | Apache-2.0 |
 | **Stable Audio** | 配乐 / 音效（走 Crafting Caster 那条服务） | [Stability-AI/stable-audio-tools](https://github.com/Stability-AI/stable-audio-tools) | 见仓库（Stability 社区许可） |
 
+> ★ **谱子只认 YuE2。** 上面这几台里，只有 YuE2 是「先写谱、再照谱唱」，
+> 所以谱子（ABC / MusicXML）只从它这条线出。HeartMuLa 出歌不出谱；换成别的引擎，
+> 歌照样能出，**谱子那一块就没有了**。要换就换一台也能出谱的。
+> （「音频转谱」是另一条路，走 SheetSage2，把现成录音扒成谱，不在这里。）
+
 **怎么换**：创作台只认**适配器契约** ——
 `bash <adapter>.sh --params 参数.json [--out-dir 目录] --progress 进度.json`，
 退出码 0/2/3/5/6/7 分别表示成功/参数错/模型加载失败/生成失败/超时/缺环境。
